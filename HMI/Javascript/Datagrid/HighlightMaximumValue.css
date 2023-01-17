@@ -1,0 +1,15 @@
+﻿#TcHmiDatagrid tr.col0 td[data-column-name="[0]"] {
+    background-color: lightgreen;
+}
+
+#TcHmiDatagrid tr.col1 td[data-column-name="[1]"] {
+    background-color: lightgreen;
+}
+
+#TcHmiDatagrid tr.col2 td[data-column-name="[2]"] {
+    background-color: lightgreen;
+}
+
+#TcHmiDatagrid tr.col3 td[data-column-name="[3]"] {
+    background-color: lightgreen;
+}

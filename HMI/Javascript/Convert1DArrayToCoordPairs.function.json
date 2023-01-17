@@ -1,0 +1,45 @@
+﻿{
+  "function": {
+    "name": "Convert1DArrayToCoordPairs",
+    "namespace": "TcHmi.Functions.HMI",
+    "displayName": "Convert1DArrayToCoordPairs",
+    "description": "",
+    "waitMode": "Synchronous",
+    "category": "Conversion",
+    "returnValue": {
+      "type": "tchmi:general#/definitions/Array"
+    },
+    "visible": true,
+    "injectContextObject": false,
+    "arguments": [
+      {
+        "name": "OneDimArray",
+        "displayName": "1D Array",
+        "type": "tchmi:general#/definitions/Array",
+        "description": "",
+        "defaultValue": "",
+        "required": true,
+        "bindable": true,
+        "restParameter": false,
+        "asReference": false,
+        "allowControlAttributeBindingOptions": false
+      }
+    ]
+  },
+  "$schema": "./../../QLearning/Packages/Beckhoff.TwinCAT.HMI.Framework.12.758.8/runtimes/native1.12-tchmi/Schema/FunctionDescription.Schema.json",
+  "apiVersion": 1,
+  "version": {
+    "full": "0.0.0.0",
+    "major": 0,
+    "minor": 0,
+    "revision": 0,
+    "build": 0
+  },
+  "dependencyFiles": [
+    {
+      "name": "Convert1DArrayToCoordPairs.js",
+      "type": "JavaScript",
+      "description": ""
+    }
+  ]
+}

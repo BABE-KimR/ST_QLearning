@@ -1,0 +1,127 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_QAgent" Id="{a65c5586-943c-4132-a998-d601541c3115}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_QAgent
+VAR_INPUT
+
+END_VAR
+VAR_OUTPUT
+
+END_VAR
+VAR CONSTANT
+	nr_states 	: INT 		:= 48;
+	nr_actions 	: INT 		:= 4;	
+END_VAR
+VAR
+	_alpha 		: LREAL 	:= 0.2;
+	_gamma 		: LREAL 	:= 0.5;
+	_epsilon 	: LREAL 	:= 1;
+	_decay 		: LREAL 	:= 0.99;
+	_r			: LREAL     := 0;
+	_actionToTake : INT;
+	_state 		: INT :=  0;
+	_reward 	: INT;
+	_newState	: INT;
+	_possibleActions : ARRAY[0..nr_actions-1] OF INT := [0,1,2,3];
+	_q_table : ARRAY[0..nr_states-1] OF ARRAY[0..nr_actions-1] OF REAL;
+	DRAND : DRAND;
+END_VAR
+VAR_IN_OUT
+
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="M_ComputeAction" Id="{455490ec-0b6c-46dc-9244-c0508ad105ee}">
+      <Declaration><![CDATA[METHOD PUBLIC M_ComputeAction : INT
+VAR_INPUT
+	State : INT;
+END_VAR
+VAR
+	tempRandomValue : LREAL;
+	tempCounter : INT;
+	tempHighestIndex : INT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_epsilon := _epsilon*_decay;
+DRAND(Seed:= 2, Num=> _r);
+IF _r <= _epsilon THEN
+	// EXPLORE: Find random action
+	DRAND(Seed:= 2, Num=> tempRandomValue);
+	tempRandomValue := tempRandomValue*nr_actions;
+	tempRandomValue := FLOOR(tempRandomValue);
+	M_ComputeAction := 	_possibleActions[TO_INT(tempRandomValue)];
+	
+
+ELSE
+	// EXPLOIT: Find action with highest Q Value
+	tempHighestIndex := 0;
+	FOR tempCounter:=0 TO (nr_actions-1) BY 1 DO
+    	IF _q_table[State][tempCounter] >_q_table[State][tempHighestIndex] THEN
+			tempHighestIndex := tempCounter;
+		END_IF
+	END_FOR;
+	M_ComputeAction := tempHighestIndex;	
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_ComputeQTable" Id="{b3152a24-9b2a-45ba-bfce-61edb457024d}">
+      <Declaration><![CDATA[METHOD PUBLIC M_ComputeQTable 
+VAR_INPUT
+	actionToTake : INT;
+	reward 	: INT;
+	state 		: INT;
+	newState 	: INT;
+END_VAR
+VAR
+	tempHighestIndex : INT;
+	tempCounter : INT;
+	oldReward, newReward,discountFutureReward: REAL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_reward := reward;
+_state := state; 
+_newState := newState;
+_actionToTake := actionToTake;
+									
+// Find future action with highest value in newState
+tempHighestIndex := 0;
+FOR tempCounter:=0 TO (nr_actions-1) BY 1 DO
+	IF _q_table[newState][tempCounter] >_q_table[newState][tempHighestIndex] THEN
+		tempHighestIndex := tempCounter;
+	END_IF
+END_FOR;
+
+// Waarde van de gekozen actie in de huidige state bijwerken
+_q_table[_state][_actionToTake] := TO_REAL((1-_alpha)*_q_table[_state][_actionToTake] + _alpha*(_reward+_gamma*(_q_table[_newState][tempHighestIndex])));
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_Init" Id="{63a9a442-6907-45ee-ba2b-f56cd7057705}">
+      <Declaration><![CDATA[METHOD PUBLIC M_Init : BOOL
+VAR_INPUT
+	Alpha 	: LREAL;
+	Gamma 	: LREAL;
+	Epsilon : LREAL;
+	Decay 	: LREAL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_alpha 		:= Alpha;
+_gamma 		:= Gamma;
+_epsilon 	:= Epsilon;
+_decay 		:= Decay;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_SaveWeights" Id="{1d965add-2ee2-4f97-b1af-b67f289be8b0}">
+      <Declaration><![CDATA[METHOD M_SaveWeights
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// TODO: Export to JSON]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

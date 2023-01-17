@@ -1,0 +1,100 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="MAIN" Id="{fa263d85-2159-48f1-ad58-763bebb242e8}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM MAIN
+VAR
+	eSTM_QLearning : E_STM_QLearning;
+	eSTM_STEP : E_STM_STEP ;
+	FB_QAgent1 : FB_QAgent; // The Q agent will try to solve the Cliffwalking environment
+	FB_Env1 : FB_Env := (sPathToBatchFile := 'C:\Users\BramS\Downloads\GitHubPrjs\ST_QLearning\Python\batch.bat',
+						sPathToBatchFileFolder := 'C:\Users\BramS\Downloads\GitHubPrjs\ST_QLearning\Python');
+	actualEpisode: INT;
+	actualStep : INT;
+	state : INT;
+	actionToTake : INT;
+	newState: INT;
+	reward: INT;
+	done : BOOL;
+	aRewardsPerEpisode : ARRAY[0..1000] OF INT;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[CASE eSTM_QLearning OF 
+     E_STM_QLearning.init:
+		FB_QAgent1.M_Init(Alpha := 0.9, Gamma := 0.8, Epsilon := 0.9999, Decay := 0.999);
+		FB_Env1.M_StartProxy();
+		IF FB_Env1.bStartProxyOK THEN
+			eSTM_QLearning := E_STM_QLearning.playEnvironment;
+		END_IF
+     E_STM_QLearning.playEnvironment :
+		IF actualEpisode < 1000 THEN
+			IF actualStep <200 THEN
+				CASE eSTM_STEP OF
+					E_STM_STEP.resetEnv:
+						FB_Env1.M_ResetEnvironment();
+						IF FB_Env1.bResetEnvironmentOK THEN
+							FB_Env1.M_ConfirmEnvResetRead();
+							state := FB_Env1.state;
+							eSTM_STEP := E_STM_STEP.computeAction;
+						END_IF
+					E_STM_STEP.computeAction:
+						// Update step counter
+						actualStep := actualStep + 1;
+						actionToTake := FB_QAgent1.M_ComputeAction(state);
+						eSTM_STEP := E_STM_STEP.executeAction;
+					E_STM_STEP.executeAction:
+						FB_Env1.M_Step(actionToTake);
+						IF FB_Env1.bEnvStepRequestedOK THEN
+							FB_Env1.M_ConfirmEnvStepRequestRead();
+							newState := FB_Env1.newState;
+							reward := FB_Env1.reward;
+							done := FB_Env1.done;
+							eSTM_STEP := E_STM_STEP.updateQtable;
+						END_IF			
+					E_STM_STEP.updateQtable:
+						// improved reward function
+						IF newState = state THEN
+							reward := -100;
+						END_IF
+						FB_QAgent1.M_ComputeQTable(actionToTake, reward, state, newState);
+						eSTM_STEP := E_STM_STEP.trackReward;
+					E_STM_STEP.trackReward:
+						aRewardsPerEpisode[actualEpisode] := aRewardsPerEpisode[actualEpisode]+reward;
+						eSTM_STEP := E_STM_STEP.updateState;
+					E_STM_STEP.updateState:
+						state := newState;
+						eSTM_STEP := E_STM_STEP.checkIfDone;
+					E_STM_STEP.checkIfDone:
+						IF done THEN
+							// The agent has reached the target
+							done := FALSE;
+							eSTM_STEP := E_STM_STEP.resetEnv;
+							FB_Env1.M_ResetInternalStates();
+							actualStep := 0;
+							actualEpisode := actualEpisode +1;
+						ELSE
+							eSTM_STEP := E_STM_STEP.computeAction;							
+						END_IF
+				END_CASE
+			ELSE
+				// The agent has taken more than 200 steps
+				eSTM_STEP := E_STM_STEP.resetEnv;
+				FB_Env1.M_ResetInternalStates();
+				actualStep := 0;
+				actualEpisode := actualEpisode +1;				
+			END_IF
+		ELSE
+			// more than 1000 episodes have passed
+			FB_Env1.M_StopEnvironment();
+			actualStep := 0;
+			
+		END_IF
+	ELSE 
+		eSTM_QLearning := E_STM_QLearning.donePlayingEnvironment;
+END_CASE;
+
+FB_Env1();
+FB_QAgent1();]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

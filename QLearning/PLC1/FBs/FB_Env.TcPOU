@@ -1,0 +1,139 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_Env" Id="{b1c361d3-a423-4771-a6f2-cf52b12a39f5}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_Env
+(*
+	The environment should provide methods like step, reset etc...
+	If the environment is outside of the PLC environment, it should act like a proxy, or contact one
+*)
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+	bResetEnvironmentOK : BOOL;
+	bStartProxyOK : BOOL;
+	bEnvStepRequestedOK : BOOL;
+	state : INT;
+	newState : INT;
+	reward : INT;
+	done : BOOL;
+END_VAR
+VAR
+	_bEnvResetRequested : BOOL;
+	_bProxyStarted : BOOL;
+	_bEnvStepRequested : BOOL;
+	_bStopEnvironmentRequested : BOOL;
+	_actionToTake : INT;
+	startProxy : NT_StartProcess;
+	sPathToBatchFile : STRING;
+	sPathToBatchFileFolder : STRING;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[startProxy(
+	NETID:= '', 
+	PATHSTR:= sPathToBatchFile, 
+	DIRNAME:= sPathToBatchFileFolder, 
+	COMNDLINE:= , 
+	START:= FALSE, 
+	TMOUT:= , 
+	BUSY=> , 
+	ERR=> , 
+	ERRID=> );]]></ST>
+    </Implementation>
+    <Method Name="M_ConfirmEnvResetRead" Id="{ebb2ffa5-5745-47cd-85a6-94c5fc8caad4}">
+      <Declaration><![CDATA[METHOD M_ConfirmEnvResetRead
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[bResetEnvironmentOK := FALSE;
+_bEnvResetRequested := FALSE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_ConfirmEnvStepRequestRead" Id="{894b98f3-372b-498c-83cf-8a66055ed630}">
+      <Declaration><![CDATA[METHOD M_ConfirmEnvStepRequestRead
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[bEnvStepRequestedOK := FALSE;
+_bEnvStepRequested := FALSE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_ResetEnvironment" Id="{eeca9014-46b2-4824-b207-3ec1e4c03604}">
+      <Declaration><![CDATA[METHOD PUBLIC M_ResetEnvironment
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF NOT _bEnvResetRequested THEN
+	_bEnvResetRequested := TRUE;
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_ResetInternalStates" Id="{e99c22c6-1c5b-4b89-bd0e-7768d09a3316}">
+      <Declaration><![CDATA[METHOD M_ResetInternalStates
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[bResetEnvironmentOK := FALSE;
+bStartProxyOK := FALSE;
+bEnvStepRequestedOK := FALSE;
+done := FALSE;
+_bEnvResetRequested := FALSE;
+_bEnvStepRequested := FALSE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_StartProxy" Id="{0895a20c-0eaa-4612-ab3a-3ec5fdffe64d}">
+      <Declaration><![CDATA[METHOD PUBLIC M_StartProxy : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF NOT _bProxyStarted THEN
+	_bProxyStarted := TRUE;
+	startProxy(
+		NETID:= '', 
+		PATHSTR:= sPathToBatchFile, 
+		DIRNAME:= sPathToBatchFileFolder, 
+		COMNDLINE:= , 
+		START:= TRUE, 
+		TMOUT:= , 
+		BUSY=> , 
+		ERR=> , 
+		ERRID=> );
+END_IF
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_Step" Id="{e7326f5d-4df5-4679-888e-9e87b50800c0}">
+      <Declaration><![CDATA[METHOD M_Step 
+VAR_INPUT
+	actionToTake : INT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF NOT _bEnvStepRequested THEN
+	_actionToTake := actionToTake;
+	_bEnvStepRequested := TRUE;
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_StopEnvironment" Id="{c0e520a0-a0bb-4a46-a4d8-ba7b016ba020}">
+      <Declaration><![CDATA[METHOD M_StopEnvironment
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF NOT _bStopEnvironmentRequested THEN
+	_bStopEnvironmentRequested := TRUE;
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

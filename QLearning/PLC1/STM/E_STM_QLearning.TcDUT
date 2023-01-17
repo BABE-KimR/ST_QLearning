@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="E_STM_QLearning" Id="{78f8b589-5c3d-404d-b48a-29788f28b0d9}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE E_STM_QLearning :
+(
+	init := 0,
+	reset,
+	resetWaitOK,
+	step,
+	stepOK,
+	compute,
+	computeOK,
+	playEnvironment,
+	donePlayingEnvironment
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

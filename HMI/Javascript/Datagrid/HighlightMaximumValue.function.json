@@ -1,0 +1,69 @@
+﻿{
+  "function": {
+    "name": "HighlightMaximumValue",
+    "namespace": "TcHmi.Functions.HMI",
+    "displayName": "HighlightMaximumValue",
+    "description": "",
+    "waitMode": "Synchronous",
+    "category": "",
+    "returnValue": {
+      "type": "tchmi:general#/definitions/Array"
+    },
+    "visible": true,
+    "injectContextObject": false,
+    "arguments": [
+      {
+        "name": "rowData",
+        "displayName": "rowData",
+        "type": "tchmi:general#/definitions/Any",
+        "description": "",
+        "defaultValue": "",
+        "required": true,
+        "bindable": true,
+        "restParameter": false,
+        "asReference": false,
+        "allowControlAttributeBindingOptions": false
+      },
+      {
+        "name": "rowIndex",
+        "displayName": "rowIndex",
+        "type": "tchmi:general#/definitions/Integer",
+        "description": "",
+        "defaultValue": "",
+        "required": true,
+        "bindable": true,
+        "restParameter": false,
+        "asReference": false,
+        "allowControlAttributeBindingOptions": false
+      },
+      {
+        "name": "rowNumber",
+        "displayName": "rowNumber",
+        "type": "tchmi:general#/definitions/Integer",
+        "description": "",
+        "defaultValue": "",
+        "required": true,
+        "bindable": true,
+        "restParameter": false,
+        "asReference": false,
+        "allowControlAttributeBindingOptions": false
+      }
+    ]
+  },
+  "$schema": "./../../../QLearning/Packages/Beckhoff.TwinCAT.HMI.Framework.12.758.8/runtimes/native1.12-tchmi/Schema/FunctionDescription.Schema.json",
+  "apiVersion": 1,
+  "version": {
+    "full": "0.0.0.0",
+    "major": 0,
+    "minor": 0,
+    "revision": 0,
+    "build": 0
+  },
+  "dependencyFiles": [
+    {
+      "name": "HighlightMaximumValue.js",
+      "type": "JavaScript",
+      "description": ""
+    }
+  ]
+}
